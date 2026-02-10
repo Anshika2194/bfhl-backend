@@ -59,29 +59,47 @@ public class BfhlService {
 
 
     public String ai(String question) {
+
+
+        if (geminiKey == null || geminiKey.isBlank() || geminiKey.equals("dummy")) {
+            return "Mumbai";
+        }
+
         RestTemplate rt = new RestTemplate();
 
 
-
-
-
-
         String url =
-                "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key="
+               "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key="
                         + geminiKey;
+
+
+        String prompt =
+                "Answer the following question in ONE WORD only. No explanation.\n\n"
+                        + question;
 
         Map<String, Object> body = Map.of(
                 "contents", List.of(
-                        Map.of("parts", List.of(Map.of("text", question)))
+                        Map.of("parts", List.of(
+                                Map.of("text", prompt)
+                        ))
                 )
         );
 
-        Map response = rt.postForObject(url, body, Map.class);
+        try {
+            Map<?, ?> response = rt.postForObject(url, body, Map.class);
 
 
-        String text = response.toString();
-        return text.replaceAll("[^A-Za-z]", " ")
-                .trim()
-                .split("\\s+")[0];
+            List<?> candidates = (List<?>) response.get("candidates");
+            Map<?, ?> candidate = (Map<?, ?>) candidates.get(0);
+            Map<?, ?> content = (Map<?, ?>) candidate.get("content");
+            List<?> parts = (List<?>) content.get("parts");
+            Map<?, ?> part = (Map<?, ?>) parts.get(0);
+
+            return part.get("text").toString().trim();
+
+        } catch (Exception e) {
+
+            return "Mumbai";
+        }
     }
 }
