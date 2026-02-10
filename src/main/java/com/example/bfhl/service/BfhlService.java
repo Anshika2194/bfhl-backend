@@ -67,7 +67,7 @@ public class BfhlService {
 
 
         String url =
-                "https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key="
+                "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key="
                         + geminiKey;
 
         Map<String, Object> body = Map.of(
